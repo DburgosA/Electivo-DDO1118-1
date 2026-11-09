@@ -49,19 +49,21 @@
     .panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: clamp(18px, 4vw, 28px); box-shadow: var(--shadow); }
     .stack { display: grid; gap: 18px; }
     .row { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
-    .button { min-height: 56px; padding: 12px 20px; display: inline-flex; align-items: center; justify-content: center; gap: 10px; border-radius: 14px; border: 2px solid var(--border); background: var(--surface); color: var(--text); font-weight: 700; text-align: center; text-decoration: none; cursor: pointer; transition: transform .16s ease, opacity .16s ease; }
+    .panel.cart-panel { display: flex; flex-direction: column; gap: 18px; }
+    .cart-list { display: grid; gap: 12px; max-height: min(38vh, 320px); overflow-y: auto; padding-right: 6px; }
+    .button { min-height: 60px; padding: 14px 22px; display: inline-flex; align-items: center; justify-content: center; gap: 10px; border-radius: 16px; border: 2px solid var(--border); background: var(--surface); color: var(--text); font-weight: 700; text-align: center; text-decoration: none; cursor: pointer; transition: transform .16s ease, opacity .16s ease; }
     .button:hover { transform: translateY(-2px); }
     .button:active { transform: translateY(0); }
-    .button.primary { width: 100%; min-height: 64px; background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+    .button.primary { width: 100%; min-height: 70px; background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
     .button.secondary { border-color: var(--secondary); }
-    .button.danger { border-color: var(--error); color: var(--error); }
+    .button.danger { border-color: var(--error); color: var(--error); min-height: 58px; padding: 12px 18px; font-size: 22px; }
     .button:disabled { opacity: .52; cursor: not-allowed; transform: none; }
-    .button.small { min-height: 46px; padding: 8px 14px; font-size: 20px; }
+    .button.small { min-height: 54px; padding: 10px 16px; font-size: 22px; }
     .button-group { display: grid; gap: 12px; }
     .input-wrap { display: grid; gap: 8px; }
     label { font-weight: 700; }
     input, select { width: 100%; min-height: 56px; border: 2px solid var(--border); border-radius: 12px; padding: 10px 14px; color: var(--text); background: var(--bg); }
-    .nav { position: fixed; z-index: 5; bottom: 0; left: 0; right: 0; background: var(--bg); border-top: 2px solid var(--border); padding: 8px max(10px, env(safe-area-inset-left)) calc(8px + env(safe-area-inset-bottom)); display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    .nav { position: fixed; z-index: 5; bottom: 0; left: 0; right: 0; background: var(--bg); border-top: 2px solid var(--border); padding: 8px max(10px, env(safe-area-inset-left)) calc(8px + env(safe-area-inset-bottom)); display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
     .nav button { min-height: 64px; border: 1px solid transparent; background: transparent; border-radius: 12px; display: grid; justify-items: center; align-content: center; gap: 1px; font-size: 20px; font-weight: 700; cursor: pointer; }
     .nav button[aria-current="page"] { background: var(--surface); border-color: var(--border); color: var(--accent); }
     .nav-icon { font-size: 23px; line-height: 1.1; }
@@ -70,9 +72,10 @@
     .detail-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12px; }
     .detail { padding: 14px; border-radius: 12px; background: var(--bg); border: 1px solid var(--border); }
     .detail strong { display: block; }
-    .cart-item { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 12px; border-bottom: 1px solid var(--border); padding: 16px 0; }
+    .cart-item { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 14px; border-bottom: 1px solid var(--border); padding: 16px 0; }
     .cart-item:last-child { border-bottom: 0; }
     .item-name { font-weight: 700; }
+    .cart-item .button.danger { min-width: 150px; justify-self: end; }
     .total-box { padding: 18px; border: 2px solid var(--accent); border-radius: 14px; background: var(--bg); }
     .total-amount { font-size: clamp(34px, 9vw, 54px); font-weight: 700; line-height: 1.2; }
     .payment-total .total-amount { font-size: clamp(40px, 11vw, 64px); overflow-wrap: anywhere; }
@@ -111,7 +114,7 @@
       body { padding-bottom: 190px; }
       .topbar { flex-wrap: wrap; }
       .status-pill { max-width: 100%; }
-      .nav { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .nav { grid-template-columns: repeat(3, minmax(0, 1fr)); }
     }
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; }
@@ -125,7 +128,7 @@
     .detect-name { font-size: clamp(26px, 7vw, 34px); font-weight: 700; line-height: 1.2; }
     .detect-meta { color: var(--muted); font-size: 20px; }
 
-    .button.giant { width: 100%; min-height: 82px; flex-direction: column; gap: 4px; font-size: clamp(22px, 5vw, 26px); }
+    .button.giant { width: 100%; min-height: 82px; display: inline-flex; align-items: center; justify-content: center; flex-direction: column; gap: 4px; font-size: clamp(22px, 5vw, 26px); }
     .button.giant small { font-size: 20px; font-weight: 400; opacity: .85; }
 
     .alt-label { font-weight: 700; }
@@ -152,11 +155,14 @@
     .alert-line.warn .ic { color: var(--error); }
     .alert-line.ok .ic { color: var(--success); }
 
-    .stepper { display: flex; align-items: center; gap: 14px; }
+    .stepper { display: flex; align-items: center; gap: 14px; justify-content: center; }
     .stepper .step-btn { width: 72px; height: 72px; flex: 0 0 72px; border: 2px solid var(--border); border-radius: 14px; background: var(--surface); color: var(--text); font-size: 32px; font-weight: 700; cursor: pointer; line-height: 1; }
     .stepper .step-btn:disabled { opacity: .4; cursor: not-allowed; }
     .stepper .step-val { min-width: 130px; text-align: center; font-size: clamp(28px, 7vw, 36px); font-weight: 700; }
     .stepper .step-unit { display: block; font-size: 20px; color: var(--muted); font-weight: 400; }
+    .sheet .stack { align-items: center; }
+    .sheet .button.primary.giant { width: min(100%, 420px); min-height: 72px; display: inline-flex; align-items: center; justify-content: center; font-size: clamp(22px, 4vw, 26px); }
+    .sheet .button { width: min(100%, 420px); min-height: 64px; margin-inline: auto; font-size: clamp(20px, 3.5vw, 24px); }
 
     .sheet-backdrop { position: fixed; inset: 0; z-index: 8; background: #0009; display: flex; align-items: flex-end; justify-content: center; }
     .sheet { position: relative; z-index: 9; width: min(720px, 100%); max-height: 92dvh; overflow-y: auto; background: var(--bg); color: var(--text); border: 2px solid var(--border); border-bottom: 0; border-radius: 24px 24px 0 0; padding: 16px clamp(16px, 4vw, 26px) calc(24px + env(safe-area-inset-bottom)); }
@@ -195,21 +201,29 @@
     (() => {
       /* ============ DATOS ============ */
       const catalog = [
-        { id: "manzana", name: "Manzanas rojas", basis: "por kg", alerts: "Sin sellos de advertencia", expires: "Vence 12/11/2026", allergens: "Sin alérgenos declarados" },
-        { id: "palta", name: "Malla de paltas Hass", basis: "por kg", bulk: true, alerts: "Sin sellos de advertencia", expires: "Vence 18/11/2026", allergens: "Sin alérgenos declarados" },
-        { id: "leche", name: "Leche entera 1 litro", basis: "por litro", alerts: "Sin sellos de advertencia", expires: "Vence 20/11/2026", allergens: "Contiene leche" },
-        { id: "galletas", name: "Galletas de chocolate 150 g", basis: "por unidad", alerts: "3 sellos: Alto en Azúcares, Alto en Calorías y Alto en Grasas Saturadas", expires: "Vence 30/09/2026", allergens: "Contiene trigo, leche y soya" },
         { id: "arroz", name: "Arroz grano largo 1 kg", basis: "por unidad", alerts: "Sin sellos de advertencia", expires: "Vence 30/04/2027", allergens: "Sin alérgenos declarados" },
-        { id: "pan", name: "Pan integral 500 g", basis: "por unidad", alerts: "Sin sellos de advertencia", expires: "Vence 10/11/2026", allergens: "Contiene trigo y sésamo" },
-        { id: "marraqueta", name: "Pan marraqueta", basis: "por kg", bulk: true, alerts: "Sin sellos de advertencia", expires: "Vence hoy a las 21:00", allergens: "Contiene trigo" },
-        { id: "aceite", name: "Aceite de maravilla 1 litro", basis: "por litro", alerts: "1 sello: Alto en Grasas Saturadas", expires: "Vence 01/06/2027", allergens: "Sin alérgenos declarados" }
+        { id: "aceite", name: "Aceite de maravilla 1 litro", basis: "por unidad", alerts: "1 sello: Alto en Grasas Saturadas", expires: "Vence 01/06/2027", allergens: "Sin alérgenos declarados" },
+        { id: "galletas", name: "Galletas de chocolate 150 g", basis: "por unidad", alerts: "3 sellos: Alto en Azúcares, Alto en Calorías y Alto en Grasas Saturadas", expires: "Vence 30/09/2026", allergens: "Contiene trigo, leche y soya" },
+        { id: "leche", name: "Leche entera 1 litro", basis: "por unidad", alerts: "Sin sellos de advertencia", expires: "Vence 20/11/2026", allergens: "Contiene leche" },
+        { id: "queso", name: "Queso gouda 300 g", basis: "por unidad", alerts: "Sin sellos de advertencia", expires: "Vence 14/11/2026", allergens: "Contiene leche" },
+        { id: "yogur", name: "Yogur natural 1 unidad", basis: "por unidad", alerts: "Sin sellos de advertencia", expires: "Vence 15/11/2026", allergens: "Contiene leche" },
+        { id: "huevos", name: "Huevos grandes 12 unidades", basis: "por unidad", alerts: "Sin sellos de advertencia", expires: "Vence 18/11/2026", allergens: "Sin alérgenos declarados" },
+        { id: "fideos", name: "Fideos de sémola 500 g", basis: "por unidad", alerts: "Sin sellos de advertencia", expires: "Vence 09/06/2027", allergens: "Contiene trigo" },
+        { id: "sal", name: "Sal de mesa 1 kg", basis: "por unidad", alerts: "Sin sellos de advertencia", expires: "Vence 15/12/2027", allergens: "Sin alérgenos declarados" },
+        { id: "arrozintegral", name: "Arroz integral 1 kg", basis: "por unidad", alerts: "Sin sellos de advertencia", expires: "Vence 29/04/2027", allergens: "Sin alérgenos declarados" },
+        { id: "papas", name: "Papas fritas 200 g", basis: "por unidad", alerts: "1 sello: Alto en Grasas Saturadas", expires: "Vence 25/11/2026", allergens: "Sin alérgenos declarados" },
+        { id: "cafe", name: "Café molido 250 g", basis: "por unidad", alerts: "Sin sellos de advertencia", expires: "Vence 05/11/2027", allergens: "Sin alérgenos declarados" },
+        { id: "frutossecos", name: "Mix de frutos secos 200 g", basis: "por unidad", alerts: "Sin sellos de advertencia", expires: "Vence 06/12/2026", allergens: "Contiene nueces y maní" },
+        { id: "azucar", name: "Azúcar refinada 1 kg", basis: "por unidad", alerts: "Sin sellos de advertencia", expires: "Vence 18/12/2027", allergens: "Sin alérgenos declarados" }
       ];
 
       const stores = [
-        { id: "mercado-central", name: "Mercado Central", prices: { manzana: 1290, palta: 4990, leche: 1190, galletas: 1490, arroz: 1590, pan: 2290, marraqueta: 2490, aceite: 3490 } },
-        { id: "supermercado-andino", name: "Supermercado Andino", prices: { manzana: 1390, palta: 5390, leche: 1090, galletas: 1390, arroz: 1690, pan: 2190, marraqueta: 2290, aceite: 3690 } },
-        { id: "ahorro-familiar", name: "Ahorro Familiar", prices: { manzana: 1190, palta: 4590, leche: 1250, galletas: 1590, arroz: 1490, pan: 2390, marraqueta: 2690, aceite: 3290 } },
-        { id: "almacen-el-barrio", name: "Almacén El Barrio", prices: { manzana: 1450, palta: 5190, leche: 1290, galletas: 1650, arroz: 1790, pan: 2450, marraqueta: 2790, aceite: 3790 } }
+        { id: "jumbo", name: "Jumbo", prices: { arroz: 1590, aceite: 3490, galletas: 1490, leche: 1190, queso: 3490, yogur: 990, huevos: 4290, fideos: 1290, sal: 690, arrozintegral: 1790, papas: 1490, cafe: 4490, frutossecos: 3990, azucar: 1290 } },
+        { id: "tottus", name: "Tottus", prices: { arroz: 1690, aceite: 3690, galletas: 1390, leche: 1090, queso: 3290, yogur: 890, huevos: 3990, fideos: 1190, sal: 620, arrozintegral: 1690, papas: 1390, cafe: 4290, frutossecos: 3890, azucar: 1190 } },
+        { id: "lider", name: "Lider", prices: { arroz: 1490, aceite: 3290, galletas: 1590, leche: 1250, queso: 3590, yogur: 1050, huevos: 4390, fideos: 1350, sal: 710, arrozintegral: 1850, papas: 1550, cafe: 4690, frutossecos: 4190, azucar: 1380 } },
+        { id: "santa-isabel", name: "Santa Isabel", prices: { arroz: 1790, aceite: 3790, galletas: 1650, leche: 1290, queso: 3890, yogur: 1090, huevos: 4490, fideos: 1420, sal: 740, arrozintegral: 1970, papas: 1630, cafe: 4890, frutossecos: 4290, azucar: 1390 } },
+        { id: "unimarc", name: "Unimarc", prices: { arroz: 1540, aceite: 3390, galletas: 1440, leche: 1170, queso: 3390, yogur: 950, huevos: 4180, fideos: 1250, sal: 660, arrozintegral: 1720, papas: 1470, cafe: 4390, frutossecos: 3950, azucar: 1210 } },
+        { id: "acuenta", name: "Acuenta", prices: { arroz: 1620, aceite: 3550, galletas: 1520, leche: 1210, queso: 3550, yogur: 980, huevos: 4240, fideos: 1310, sal: 700, arrozintegral: 1830, papas: 1530, cafe: 4550, frutossecos: 4100, azucar: 1290 } }
       ];
 
       const catalogCache = {};
@@ -249,11 +263,11 @@
       /* ============ ESTADO ============ */
       const state = {
         view: "access", page: "",
-        detectedId: stores[0].id, storeId: "",
+        detectedId: stores[0].id, selectedStoreId: "", storeId: "",
         voice: localStorage.getItem("bh-voice") !== "false",
         theme: localStorage.getItem("bh-theme") || "dark",
         cart: [], sheet: null, sheetQty: 1, sheetFocus: false, returnFocus: false,
-        pending: "", scanning: false, scanIndex: 0,
+        pending: "", scanning: false, scanIndex: 0, lastScannedId: "",
         lastReceipt: null, notice: "", noticeType: "",
         checkout: "idle", amountRead: false, amountTried: false, amountFailed: false, amountConfirmed: false, posAmount: 0
       };
@@ -340,26 +354,44 @@
       /* ============ VISTA: ACCESO / COMERCIO ============ */
       function renderAccess() {
         const detected = getStore(state.detectedId);
+        const selected = state.selectedStoreId ? getStore(state.selectedStoreId) : detected;
         const others = stores.filter(s => s.id !== state.detectedId);
-        const cards = others.map(s =>
-          '<button class="store-card" type="button" data-action="pick-store" data-id="' + s.id + '">' + escapeHtml(s.name) + "</button>"
-        ).join("");
+        const cards = others.map(s => {
+          const isSelected = state.selectedStoreId === s.id;
+          return '<button class="store-card' + (isSelected ? ' armed' : '') + '" type="button" data-action="pick-store" data-id="' + s.id + '" aria-pressed="' + (isSelected ? 'true' : 'false') + '">' + escapeHtml(s.name) + "</button>";
+        }).join("");
+        const detectedSelected = state.selectedStoreId === state.detectedId;
         return '<section class="stack" aria-labelledby="title">' +
           '<h1 id="title" tabindex="-1">Ubicación detectada</h1>' +
           '<div class="panel stack">' +
-            '<div class="detect-card"><div class="detect-label">Ubicación detectada por GPS/Baliza BLE:</div>' +
-              '<div class="detect-name">' + escapeHtml(detected.name) + "</div></div>" +
-            '<button class="button primary giant" type="button" data-action="confirm-store">Confirmar ingreso a este local</button>' +
+            '<button class="detect-card" type="button" data-action="pick-store" data-id="' + detected.id + '" aria-pressed="' + (detectedSelected ? 'true' : 'false') + '" style="text-align:left; cursor:pointer; width:100%;">' +
+              '<div class="detect-label">Ubicación detectada por GPS:</div>' +
+              '<div class="detect-name">' + escapeHtml(detected.name) + '</div>' +
+              '<div class="detect-meta">' + (detectedSelected ? 'Seleccionado' : 'Toca para seleccionar') + '</div>' +
+            '</button>' +
+            '<button class="button primary giant" type="button" data-action="confirm-store">Confirmar ingreso a ' + escapeHtml(selected.name) + '</button>' +
           "</div>" +
           '<div class="store-grid" role="group" aria-label="Otros supermercados">' + cards + "</div>" +
           noticeMarkup() +
         "</section>";
       }
 
-      /* ============ VISTA: ESCÁNER ============ */
       function renderScan() {
+        const p = state.lastScannedId ? findProduct(state.lastScannedId) : null;
+        const statusText = state.scanning ? "Escaneando…" : (p ? "Producto detectado" : "Cámara lista");
+        const detectionBox = p
+          ? '<div class="state-message success"><strong>Último producto:</strong> ' + escapeHtml(p.name) + ' · ' + money(p.price) + '</div>'
+          : '<div class="state-message">Apunta el producto dentro del marco para escanear.</div>';
+
         return '<section class="stack" aria-labelledby="title">' +
           '<h1 id="title" tabindex="-1">Escáner</h1>' +
+          '<div class="panel stack">' +
+            '<div class="scan-frame" role="img" aria-label="Cámara del escáner">' +
+              '<div class="scan-target" aria-hidden="true">◎</div>' +
+            '</div>' +
+            '<div class="row"><span class="eyebrow" style="margin:0;">Estado</span><strong>' + escapeHtml(statusText) + '</strong></div>' +
+            detectionBox +
+          '</div>' +
           '<button class="button primary giant" type="button" data-action="scan"' + (state.scanning ? " disabled" : "") + ">" +
             (state.scanning ? "Analizando…" : "Analizar producto") + "</button>" +
           '<button class="button secondary" type="button" data-action="go-cart">Carrito (' + cartUnits() + ")</button>" +
@@ -378,11 +410,10 @@
           : '<div class="state-message">Carrito vacío</div>';
         return '<section class="stack" aria-labelledby="title">' +
           '<h1 id="title" tabindex="-1">Carrito</h1>' +
-          '<div class="panel stack">' +
-            "<div>" + rows + "</div>" +
+          '<div class="panel cart-panel">' +
             '<div class="total-box"><div class="total-amount">' + money(total()) + "</div></div>" +
             '<button class="button primary giant" type="button" data-action="go-checkout"' + (state.cart.length ? "" : " disabled") + ">Ir a pagar</button>" +
-            '<button class="button secondary" type="button" data-action="go-scan">Seguir escaneando</button>' +
+            '<div class="cart-list">' + rows + '</div>' +
           "</div>" + noticeMarkup() +
         "</section>";
       }
@@ -497,7 +528,7 @@
                 '<button class="step-btn" type="button" data-action="sheet-inc" data-id="' + p.id + '" aria-label="Agregar ' + stepLabel + '">+</button>' +
               "</div>" +
               '<button class="button primary giant" type="button" data-action="sheet-add" data-id="' + p.id + '">Agregar ' + qtyText(p, qty) + " al carrito</button>" +
-              '<button class="button" type="button" data-action="sheet-close">Cerrar</button>' +
+              '<button class="button" type="button" data-action="sheet-close">No agregar</button>' +
             "</div>" +
           "</div>" +
         "</div>";
@@ -623,14 +654,28 @@
 
         /* --- Acceso --- */
         if (action === "pick-store") {
-          state.detectedId = id;
+          const store = getStore(id);
+          if (!store) return;
+          const isDetected = id === state.detectedId;
+          if (state.selectedStoreId === id && !isDetected) {
+            state.selectedStoreId = "";
+            speak("Selección cancelada.");
+          } else {
+            state.selectedStoreId = id;
+            if (isDetected) {
+              state.detectedId = id;
+            }
+            speak(store.name + " seleccionado.");
+          }
           render();
-          speak(getStore(id).name + " seleccionado.");
         }
         else if (action === "confirm-store") {
-          const store = getStore(state.detectedId);
+          const targetStoreId = state.selectedStoreId || state.detectedId;
+          const store = getStore(targetStoreId);
+          if (!store) return;
           if (state.storeId !== store.id) state.cart = [];
           state.storeId = store.id;
+          state.selectedStoreId = "";
           goView("scan", "scan", "Supermercado " + store.name + ". Escáner listo.");
         }
         else if (action === "go-start") {
@@ -649,7 +694,9 @@
           window.setTimeout(() => {
             const p = products[state.scanIndex % products.length];
             state.scanIndex += 1;
+            state.lastScannedId = p.id;
             state.scanning = false;
+            render();
             openSheet(p.id);
           }, 700);
         }
@@ -675,6 +722,7 @@
           const msg = applyAdd(p, state.sheetQty);
           state.sheet = null;
           state.sheetQty = 1;
+          state.lastScannedId = "";
           state.returnFocus = true;
           render();
           speak(msg);
