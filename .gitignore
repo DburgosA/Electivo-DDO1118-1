@@ -1,0 +1,17 @@
+# Vercel
+.vercel/
+
+# Dependencias
+node_modules/
+
+# Salida de build
+dist/
+build/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Sistema
+.DS_Store
+Thumbs.db
