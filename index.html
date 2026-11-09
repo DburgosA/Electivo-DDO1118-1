@@ -18,6 +18,12 @@
       --error: #FF9E9E; --success: #7DF0A6; --border: #5A7BA6;
       --focus: #FFD60A; --focus-edge: #F5F7FA; --shadow: 0 14px 38px #0005;
       --radius: 18px; --font: "Atkinson Hyperlegible", system-ui, sans-serif;
+      --page-bg-1: #081827; --page-bg-2: #10294c; --page-bg-3: #071522;
+      --panel-bg-1: rgba(16, 31, 52, 0.96); --panel-bg-2: rgba(10, 22, 39, 0.92);
+      --panel-border: rgba(145, 176, 221, 0.28); --phone-bg-1: #1a1d24; --phone-bg-2: #090d13;
+      --phone-inner-1: #0a1628; --phone-inner-2: #0d1c2f; --phone-shell: #101720; --phone-bar: rgba(4, 8, 14, .82);
+      --phone-panel-bg: rgba(10, 26, 47, .98); --phone-panel-border: rgba(122, 145, 185, 0.2);
+      --panel-soft: rgba(7, 18, 30, 0.7); --card-soft: rgba(11, 20, 32, 0.92); --card-line: rgba(122, 145, 185, 0.28);
     }
     [data-theme="light"] {
       color-scheme: light;
@@ -25,12 +31,44 @@
       --accent: #0B3D91; --accent-ink: #FFFFFF; --secondary: #0B3D91;
       --error: #A4001F; --success: #005A32; --border: #0A1A2F;
       --focus: #FFD60A; --focus-edge: #0A1A2F; --shadow: 0 14px 38px #0A1A2F1c;
+      --page-bg-1: #edf3fb; --page-bg-2: #dfeaf8; --page-bg-3: #eff5ff;
+      --panel-bg-1: rgba(255, 255, 255, 0.94); --panel-bg-2: rgba(239, 243, 249, 0.94);
+      --panel-border: rgba(10, 26, 47, 0.18); --phone-bg-1: #eef4fb; --phone-bg-2: #dfe8f5;
+      --phone-inner-1: #f8fbff; --phone-inner-2: #edf3fa; --phone-shell: #dfeaf8; --phone-bar: rgba(255,255,255,.72);
+      --phone-panel-bg: rgba(255, 255, 255, 0.94); --phone-panel-border: rgba(10, 26, 47, 0.12);
+      --panel-soft: rgba(255,255,255,0.8); --card-soft: rgba(255,255,255,0.96); --card-line: rgba(10,26,47,0.18);
     }
     * { box-sizing: border-box; }
     html { min-height: 100%; background: var(--bg); }
-    body { margin: 0; min-height: 100dvh; background: var(--bg); color: var(--text); font: 20px/1.5 var(--font); padding-bottom: 112px; }
+    body { margin: 0; min-height: 100dvh; background: radial-gradient(circle at top left, var(--page-bg-2) 0%, var(--page-bg-1) 38%, var(--page-bg-3) 100%); color: var(--text); font: 20px/1.5 var(--font); padding-bottom: 112px; overflow-x: hidden; }
     button, input, select { font: inherit; }
     button { color: inherit; }
+    .page-shell { max-width: 1280px; margin: 0 auto; padding: 42px 20px 70px; display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(320px, 430px); gap: 32px; align-items: stretch; }
+    .project-panel { background: linear-gradient(180deg, var(--panel-bg-1), var(--panel-bg-2)); border: 1px solid var(--panel-border); border-radius: 28px; padding: clamp(24px, 4vw, 34px); box-shadow: 0 25px 70px rgba(1, 5, 12, 0.35); }
+    .eyebrow { letter-spacing: .12em; text-transform: uppercase; font-size: 12px; font-weight: 700; color: var(--secondary); margin: 0 0 12px; }
+    .project-panel h1 { font-size: clamp(38px, 5vw, 60px); margin: 0 0 18px; line-height: .96; letter-spacing: -0.04em; }
+    .project-panel > p { font-size: 21px; line-height: 1.6; color: var(--muted); margin: 0 0 22px; }
+    .hero-badges { display: flex; flex-wrap: wrap; gap: 10px; margin: 0 0 22px; }
+    .hero-badges span { display: inline-flex; align-items: center; padding: 8px 12px; border-radius: 999px; background: rgba(111, 211, 255, 0.08); border: 1px solid rgba(111, 211, 255, 0.35); color: var(--secondary); font-size: 14px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
+    .mini-metrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 0 0 4px; }
+    .mini-metrics div { padding: 14px 12px; border-radius: 16px; background: var(--panel-soft); border: 1px solid var(--card-line); }
+    .mini-metrics strong { display: block; font-size: 24px; margin-bottom: 4px; color: var(--accent); }
+    .mini-metrics span { color: var(--muted); font-size: 14px; }
+    .info-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-top: 26px; }
+    .info-card { position: relative; overflow: hidden; background: linear-gradient(180deg, rgba(15, 27, 44, 0.9), var(--card-soft)); border: 1px solid var(--card-line); border-radius: 20px; padding: 18px 18px 16px; }
+    .info-card::before { content: ""; position: absolute; inset: 0 auto auto 0; width: 100%; height: 3px; background: linear-gradient(90deg, var(--secondary), var(--accent)); }
+    .info-card h3 { margin: 0 0 10px; font-size: 22px; }
+    .info-card ul { margin: 0; padding-left: 20px; color: var(--muted); font-size: 18px; line-height: 1.65; }
+    .demo-panel { display: flex; justify-content: center; align-items: stretch; }
+    .phone-frame { position: relative; width: min(100%, 420px); max-height: 860px; min-height: 700px; height: min(82vh, 860px); background: linear-gradient(180deg, var(--phone-bg-1) 0%, var(--phone-bg-2) 100%); border: 10px solid var(--phone-shell); border-radius: 40px; box-shadow: 0 28px 80px rgba(0,0,0,.48); overflow: hidden; display: flex; flex-direction: column; isolation: isolate; }
+    .phone-frame::before { content: ""; position: absolute; inset: 12px 34% auto 34%; height: 22px; background: var(--phone-bar); border-radius: 0 0 18px 18px; z-index: 9; }
+    .phone-frame .topbar { position: sticky; top: 0; z-index: 4; flex-shrink: 0; background: var(--phone-panel-bg); border-bottom: 1px solid var(--phone-panel-border); }
+    .phone-frame .nav { position: static; z-index: 6; border-radius: 0; flex-shrink: 0; margin-top: auto; background: var(--phone-panel-bg); border-top: 1px solid var(--phone-panel-border); grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .phone-frame main { max-width: none; margin: 0; padding: 18px 14px 12px; flex: 1 1 auto; overflow-y: auto; overflow-x: hidden; background: linear-gradient(180deg, var(--phone-inner-1), var(--phone-inner-2)); -webkit-overflow-scrolling: touch; }
+    .phone-frame #view { min-height: 100%; }
+    .phone-frame .panel { box-shadow: none; }
+    .phone-frame .nav, .phone-frame .topbar { position: relative; }
+    @media (max-width: 980px) { .page-shell { grid-template-columns: 1fr; } .project-panel { order: 2; } .demo-panel { order: 1; } }
     :focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; box-shadow: 0 0 0 6px var(--focus-edge); }
     .skip { position: fixed; top: 8px; left: 8px; z-index: 10; transform: translateY(-160%); padding: 12px 18px; background: var(--accent); color: var(--accent-ink); border-radius: 10px; }
     .skip:focus { transform: translateY(0); }
@@ -164,8 +202,8 @@
     .sheet .button.primary.giant { width: min(100%, 420px); min-height: 72px; display: inline-flex; align-items: center; justify-content: center; font-size: clamp(22px, 4vw, 26px); }
     .sheet .button { width: min(100%, 420px); min-height: 64px; margin-inline: auto; font-size: clamp(20px, 3.5vw, 24px); }
 
-    .sheet-backdrop { position: fixed; inset: 0; z-index: 8; background: #0009; display: flex; align-items: flex-end; justify-content: center; }
-    .sheet { position: relative; z-index: 9; width: min(720px, 100%); max-height: 92dvh; overflow-y: auto; background: var(--bg); color: var(--text); border: 2px solid var(--border); border-bottom: 0; border-radius: 24px 24px 0 0; padding: 16px clamp(16px, 4vw, 26px) calc(24px + env(safe-area-inset-bottom)); }
+    .sheet-backdrop { position: absolute; inset: 0; z-index: 20; background: rgba(0,0,0,.58); display: flex; align-items: flex-end; justify-content: center; }
+    .sheet { position: relative; z-index: 21; width: min(720px, 100%); max-height: 92dvh; overflow-y: auto; background: var(--bg); color: var(--text); border: 2px solid var(--border); border-bottom: 0; border-radius: 24px 24px 0 0; padding: 16px clamp(16px, 4vw, 26px) calc(24px + env(safe-area-inset-bottom)); }
     .sheet-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; position: sticky; top: -16px; background: var(--bg); padding: 8px 0 12px; z-index: 2; }
     .sheet-head h2 { margin: 0; font-size: 24px; }
     .sheet-close { min-width: 60px; min-height: 60px; border: 2px solid var(--border); border-radius: 14px; background: var(--surface); color: var(--text); font-size: 26px; cursor: pointer; }
@@ -176,7 +214,7 @@
     .store-card { min-height: 130px; padding: 16px; border: 2px solid var(--border); border-radius: 18px; background: var(--surface); color: var(--text); font-size: clamp(22px, 5vw, 26px); font-weight: 700; line-height: 1.25; cursor: pointer; }
     .armed { outline: 4px solid var(--accent); outline-offset: 3px; }
     @media (min-width: 780px) {
-      .sheet-backdrop { align-items: center; padding: 26px; }
+      .sheet-backdrop { align-items: center; padding: 18px; }
       .sheet { border-bottom: 2px solid var(--border); border-radius: 24px; max-height: 86dvh; }
       .sheet-head { top: -16px; }
     }
@@ -184,46 +222,97 @@
 </head>
 <body>
   <a class="skip" href="#main">Saltar al contenido principal</a>
-  <header class="topbar">
-    <div class="brand"><span class="brand-mark" aria-hidden="true">B</span><span>BlindHelPOS<small id="storeSubtitle">Elige tu supermercado</small></span></div>
-  </header>
-  <main id="main" tabindex="-1">
-    <div id="view"></div>
-  </main>
-  <nav class="nav" aria-label="Navegación principal">
-    <button type="button" data-dest="scan" aria-current="page"><span class="nav-icon" aria-hidden="true">▦</span><span>Escanear</span></button>
-    <button type="button" data-dest="cart"><span class="nav-icon" aria-hidden="true">▤</span><span>Carrito</span></button>
-    <button type="button" data-dest="account"><span class="nav-icon" aria-hidden="true">●</span><span>Cuenta</span></button>
-  </nav>
-  <div class="sr-only" id="screenAnnounce" aria-live="polite" aria-atomic="true"></div>
-<div class="sr-only" id="liveAssertive" aria-live="assertive" aria-atomic="true"></div>
+  <div class="page-shell">
+    <section class="project-panel" aria-label="Información del proyecto">
+      <p class="eyebrow">Proyecto · acceso y compra autónoma</p>
+      <div class="hero-badges" aria-label="Atributos del proyecto">
+        <span>UX</span>
+        <span>Accesibilidad</span>
+        <span>POS</span>
+      </div>
+      <h1>BlindHelPOS</h1>
+      <p>Prototipo de compras asistido para personas con ceguera total o baja visión, pensado para que escaneen productos, revisen el carrito y paguen sin depender de un acompañante.</p>
+      <div class="info-grid">
+        <article class="info-card">
+          <h3>Problema</h3>
+          <ul>
+            <li>Las personas con discapacidad visual no pueden leer etiquetas ni precios por sí mismas.</li>
+            <li>Hoy dependen de un acompañante o del personal del comercio.</li>
+            <li>La compra autónoma requiere confirmar nombre, costo y total.</li>
+          </ul>
+        </article>
+        <article class="info-card">
+          <h3>Solución</h3>
+          <ul>
+            <li>Escaneo del producto con la cámara del móvil.</li>
+            <li>Lectura por voz del nombre, precio y detalles del producto.</li>
+            <li>Confirmación del total antes del pago.</li>
+          </ul>
+        </article>
+        <article class="info-card">
+          <h3>Usuarios</h3>
+          <ul>
+            <li>Personas con ceguera total o baja visión.</li>
+            <li>Compradores que necesitan autonomía en tienda.</li>
+            <li>Usuarios con experiencia digital básica y lector de pantalla.</li>
+          </ul>
+        </article>
+        <article class="info-card">
+          <h3>Valor</h3>
+          <ul>
+            <li>Mejora la independencia y la confianza al comprar.</li>
+            <li>Reduce errores y tiempos de espera.</li>
+            <li>Habla con el flujo real del supermercado y del POS.</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section class="demo-panel" aria-label="Demo de la aplicación en tamaño móvil">
+      <div class="phone-frame">
+        <header class="topbar">
+          <div class="brand"><span class="brand-mark" aria-hidden="true">B</span><span>BlindHelPOS<small id="storeSubtitle">Elige tu supermercado</small></span></div>
+        </header>
+        <main id="main" tabindex="-1">
+          <div id="view"></div>
+        </main>
+        <nav class="nav" aria-label="Navegación principal">
+          <button type="button" data-dest="scan" aria-current="page"><span class="nav-icon" aria-hidden="true">▦</span><span>Escanear</span></button>
+          <button type="button" data-dest="cart"><span class="nav-icon" aria-hidden="true">▤</span><span>Carrito</span></button>
+          <button type="button" data-dest="account"><span class="nav-icon" aria-hidden="true">●</span><span>Cuenta</span></button>
+        </nav>
+        <div class="sr-only" id="screenAnnounce" aria-live="polite" aria-atomic="true"></div>
+        <div class="sr-only" id="liveAssertive" aria-live="assertive" aria-atomic="true"></div>
+      </div>
+    </section>
+  </div>
 <script>
     (() => {
       /* ============ DATOS ============ */
       const catalog = [
         { id: "arroz", name: "Arroz grano largo 1 kg", basis: "por unidad", alerts: "Sin sellos de advertencia", expires: "Vence 30/04/2027", allergens: "Sin alérgenos declarados" },
         { id: "aceite", name: "Aceite de maravilla 1 litro", basis: "por unidad", alerts: "1 sello: Alto en Grasas Saturadas", expires: "Vence 01/06/2027", allergens: "Sin alérgenos declarados" },
-        { id: "galletas", name: "Galletas de chocolate 150 g", basis: "por unidad", alerts: "3 sellos: Alto en Azúcares, Alto en Calorías y Alto en Grasas Saturadas", expires: "Vence 30/09/2026", allergens: "Contiene trigo, leche y soya" },
-        { id: "leche", name: "Leche entera 1 litro", basis: "por unidad", alerts: "Sin sellos de advertencia", expires: "Vence 20/11/2026", allergens: "Contiene leche" },
-        { id: "queso", name: "Queso gouda 300 g", basis: "por unidad", alerts: "Sin sellos de advertencia", expires: "Vence 14/11/2026", allergens: "Contiene leche" },
-        { id: "yogur", name: "Yogur natural 1 unidad", basis: "por unidad", alerts: "Sin sellos de advertencia", expires: "Vence 15/11/2026", allergens: "Contiene leche" },
-        { id: "huevos", name: "Huevos grandes 12 unidades", basis: "por unidad", alerts: "Sin sellos de advertencia", expires: "Vence 18/11/2026", allergens: "Sin alérgenos declarados" },
+        { id: "avena", name: "Avena instantánea 500 g", basis: "por unidad", alerts: "Sin sellos de advertencia", expires: "Vence 24/08/2027", allergens: "Sin alérgenos declarados" },
+        { id: "galletas", name: "Galletas de avena 150 g", basis: "por unidad", alerts: "1 sello: Alto en Azúcares", expires: "Vence 16/12/2026", allergens: "Contiene avena, trigo y soya" },
         { id: "fideos", name: "Fideos de sémola 500 g", basis: "por unidad", alerts: "Sin sellos de advertencia", expires: "Vence 09/06/2027", allergens: "Contiene trigo" },
+        { id: "lentejas", name: "Lentejas secas 500 g", basis: "por unidad", alerts: "Sin sellos de advertencia", expires: "Vence 15/02/2028", allergens: "Sin alérgenos declarados" },
+        { id: "salsa", name: "Salsa de tomate 340 g", basis: "por unidad", alerts: "Sin sellos de advertencia", expires: "Vence 18/06/2027", allergens: "Sin alérgenos declarados" },
+        { id: "te", name: "Té verde 20 bolsitas", basis: "por unidad", alerts: "Sin sellos de advertencia", expires: "Vence 19/07/2027", allergens: "Sin alérgenos declarados" },
         { id: "sal", name: "Sal de mesa 1 kg", basis: "por unidad", alerts: "Sin sellos de advertencia", expires: "Vence 15/12/2027", allergens: "Sin alérgenos declarados" },
         { id: "arrozintegral", name: "Arroz integral 1 kg", basis: "por unidad", alerts: "Sin sellos de advertencia", expires: "Vence 29/04/2027", allergens: "Sin alérgenos declarados" },
-        { id: "papas", name: "Papas fritas 200 g", basis: "por unidad", alerts: "1 sello: Alto en Grasas Saturadas", expires: "Vence 25/11/2026", allergens: "Sin alérgenos declarados" },
+        { id: "harina", name: "Harina de trigo 1 kg", basis: "por unidad", alerts: "Sin sellos de advertencia", expires: "Vence 25/10/2027", allergens: "Contiene trigo" },
         { id: "cafe", name: "Café molido 250 g", basis: "por unidad", alerts: "Sin sellos de advertencia", expires: "Vence 05/11/2027", allergens: "Sin alérgenos declarados" },
         { id: "frutossecos", name: "Mix de frutos secos 200 g", basis: "por unidad", alerts: "Sin sellos de advertencia", expires: "Vence 06/12/2026", allergens: "Contiene nueces y maní" },
         { id: "azucar", name: "Azúcar refinada 1 kg", basis: "por unidad", alerts: "Sin sellos de advertencia", expires: "Vence 18/12/2027", allergens: "Sin alérgenos declarados" }
       ];
 
       const stores = [
-        { id: "jumbo", name: "Jumbo", prices: { arroz: 1590, aceite: 3490, galletas: 1490, leche: 1190, queso: 3490, yogur: 990, huevos: 4290, fideos: 1290, sal: 690, arrozintegral: 1790, papas: 1490, cafe: 4490, frutossecos: 3990, azucar: 1290 } },
-        { id: "tottus", name: "Tottus", prices: { arroz: 1690, aceite: 3690, galletas: 1390, leche: 1090, queso: 3290, yogur: 890, huevos: 3990, fideos: 1190, sal: 620, arrozintegral: 1690, papas: 1390, cafe: 4290, frutossecos: 3890, azucar: 1190 } },
-        { id: "lider", name: "Lider", prices: { arroz: 1490, aceite: 3290, galletas: 1590, leche: 1250, queso: 3590, yogur: 1050, huevos: 4390, fideos: 1350, sal: 710, arrozintegral: 1850, papas: 1550, cafe: 4690, frutossecos: 4190, azucar: 1380 } },
-        { id: "santa-isabel", name: "Santa Isabel", prices: { arroz: 1790, aceite: 3790, galletas: 1650, leche: 1290, queso: 3890, yogur: 1090, huevos: 4490, fideos: 1420, sal: 740, arrozintegral: 1970, papas: 1630, cafe: 4890, frutossecos: 4290, azucar: 1390 } },
-        { id: "unimarc", name: "Unimarc", prices: { arroz: 1540, aceite: 3390, galletas: 1440, leche: 1170, queso: 3390, yogur: 950, huevos: 4180, fideos: 1250, sal: 660, arrozintegral: 1720, papas: 1470, cafe: 4390, frutossecos: 3950, azucar: 1210 } },
-        { id: "acuenta", name: "Acuenta", prices: { arroz: 1620, aceite: 3550, galletas: 1520, leche: 1210, queso: 3550, yogur: 980, huevos: 4240, fideos: 1310, sal: 700, arrozintegral: 1830, papas: 1530, cafe: 4550, frutossecos: 4100, azucar: 1290 } }
+        { id: "jumbo", name: "Jumbo", prices: { arroz: 1590, aceite: 3490, avena: 1290, galletas: 1490, fideos: 1290, lentejas: 1690, salsa: 1190, te: 2290, sal: 690, arrozintegral: 1790, harina: 1180, cafe: 4490, frutossecos: 3990, azucar: 1290 } },
+        { id: "tottus", name: "Tottus", prices: { arroz: 1690, aceite: 3690, avena: 1190, galletas: 1390, fideos: 1190, lentejas: 1590, salsa: 1090, te: 2190, sal: 620, arrozintegral: 1690, harina: 1120, cafe: 4290, frutossecos: 3890, azucar: 1190 } },
+        { id: "lider", name: "Lider", prices: { arroz: 1490, aceite: 3290, avena: 1330, galletas: 1590, fideos: 1350, lentejas: 1750, salsa: 1230, te: 2390, sal: 710, arrozintegral: 1850, harina: 1220, cafe: 4690, frutossecos: 4190, azucar: 1380 } },
+        { id: "santa-isabel", name: "Santa Isabel", prices: { arroz: 1790, aceite: 3790, avena: 1410, galletas: 1650, fideos: 1420, lentejas: 1830, salsa: 1290, te: 2450, sal: 740, arrozintegral: 1970, harina: 1260, cafe: 4890, frutossecos: 4290, azucar: 1390 } },
+        { id: "unimarc", name: "Unimarc", prices: { arroz: 1540, aceite: 3390, avena: 1270, galletas: 1440, fideos: 1250, lentejas: 1680, salsa: 1170, te: 2260, sal: 660, arrozintegral: 1720, harina: 1160, cafe: 4390, frutossecos: 3950, azucar: 1210 } },
+        { id: "acuenta", name: "Acuenta", prices: { arroz: 1620, aceite: 3550, avena: 1310, galletas: 1520, fideos: 1310, lentejas: 1710, salsa: 1200, te: 2320, sal: 700, arrozintegral: 1830, harina: 1200, cafe: 4550, frutossecos: 4100, azucar: 1290 } }
       ];
 
       const catalogCache = {};
@@ -381,7 +470,7 @@
         const statusText = state.scanning ? "Escaneando…" : (p ? "Producto detectado" : "Cámara lista");
         const detectionBox = p
           ? '<div class="state-message success"><strong>Último producto:</strong> ' + escapeHtml(p.name) + ' · ' + money(p.price) + '</div>'
-          : '<div class="state-message">Apunta el producto dentro del marco para escanear.</div>';
+          : '';
 
         return '<section class="stack" aria-labelledby="title">' +
           '<h1 id="title" tabindex="-1">Escáner</h1>' +
@@ -469,13 +558,14 @@
           const retry = state.amountTried && state.amountFailed && !state.amountRead
             ? '<button class="button" type="button" data-action="confirm-heard">Confirmo que escuché el monto</button>'
             : "";
+          const canAuthorize = Number(state.posAmount) > 0;
           return '<section class="stack" aria-labelledby="title">' +
             '<h1 id="title" tabindex="-1">Monto a cobrar</h1>' +
             '<div class="panel stack">' +
               '<div class="total-box"><div class="total-amount">' + money(state.posAmount) + "</div></div>" +
               '<button class="button secondary giant" type="button" data-action="read-amount">Leer monto por voz</button>' +
               retry +
-              '<button class="button primary giant" type="button" data-action="pos-authorize"' + (state.amountRead ? "" : " disabled") + ">Autorizar pago contactless</button>" +
+              '<button class="button primary giant" type="button" data-action="pos-authorize"' + (canAuthorize ? "" : " disabled") + ">Autorizar pago contactless</button>" +
               '<button class="button" type="button" data-action="back-cart">Volver al carrito</button>' +
             "</div>" + noticeMarkup() +
           "</section>";
@@ -773,24 +863,25 @@
           if (state.checkout !== "received") return;
           state.amountTried = true;
           state.amountConfirmed = false;
-          state.amountFailed = !state.voice;
-          state.amountRead = false;
+          state.amountRead = true;
           if (!state.voice) {
-            state.notice = "Activa la lectura por voz en Cuenta para escuchar el monto.";
+            state.amountFailed = true;
+            state.notice = "La lectura por voz está desactivada, pero el pago puede autorizarse igualmente.";
             state.noticeType = "error";
             render();
             return;
           }
+          state.amountFailed = false;
           state.notice = "";
           render();
           const started = speak("Monto exacto a cobrar: " + money(state.posAmount) + ". Acerca tu tarjeta o tu teléfono para pagar.", ok => {
-            state.amountRead = ok;
+            state.amountRead = ok || true;
             state.amountFailed = !ok;
             state.notice = ok ? "" : "No se pudo leer el monto. Intenta de nuevo.";
             state.noticeType = ok ? "" : "error";
             render();
           });
-          if (!started) { state.amountFailed = true; render(); }
+          if (!started) { state.amountFailed = true; state.amountRead = true; render(); }
         }
         else if (action === "confirm-heard") {
           if (state.checkout !== "received") return;
@@ -801,7 +892,9 @@
           speak("Monto confirmado.");
         }
         else if (action === "pos-authorize") {
-          if (!state.amountRead || state.checkout !== "received") return;
+          if (state.checkout !== "received" || Number(state.posAmount) <= 0) return;
+          state.amountRead = true;
+          state.amountConfirmed = true;
           state.checkout = "processing";
           state.notice = "";
           render();
