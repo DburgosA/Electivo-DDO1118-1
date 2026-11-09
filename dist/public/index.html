@@ -1,0 +1,653 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0A1A2F">
+  <meta name="description" content="BlindHelPOS: compra asistida con autonomía, seguridad y confirmaciones por voz.">
+  <title>BlindHelPOS · Compra asistida</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' rx='12' fill='%230A1A2F'/%3E%3Ctext x='50%25' y='53%25' font-family='sans-serif' font-size='30' font-weight='700' text-anchor='middle' dominant-baseline='middle' fill='%23FFD60A'%3EB%3C/text%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0A1A2F; --surface: #14294A; --text: #F5F7FA; --muted: #C8D3E3;
+      --accent: #FFD60A; --accent-ink: #0A1A2F; --secondary: #6FD3FF;
+      --error: #FF9E9E; --success: #7DF0A6; --border: #5A7BA6;
+      --focus: #FFD60A; --focus-edge: #F5F7FA; --shadow: 0 14px 38px #0005;
+      --radius: 18px; --font: "Atkinson Hyperlegible", system-ui, sans-serif;
+    }
+    [data-theme="light"] {
+      color-scheme: light;
+      --bg: #FFFFFF; --surface: #EEF3F9; --text: #0A1A2F; --muted: #0A1A2F;
+      --accent: #0B3D91; --accent-ink: #FFFFFF; --secondary: #0B3D91;
+      --error: #A4001F; --success: #005A32; --border: #0A1A2F;
+      --focus: #FFD60A; --focus-edge: #0A1A2F; --shadow: 0 14px 38px #0A1A2F1c;
+    }
+    * { box-sizing: border-box; }
+    html { min-height: 100%; background: var(--bg); }
+    body { margin: 0; min-height: 100dvh; background: var(--bg); color: var(--text); font: 20px/1.5 var(--font); padding-bottom: 112px; }
+    button, input, select { font: inherit; }
+    button { color: inherit; }
+    :focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; box-shadow: 0 0 0 6px var(--focus-edge); }
+    .skip { position: fixed; top: 8px; left: 8px; z-index: 10; transform: translateY(-160%); padding: 12px 18px; background: var(--accent); color: var(--accent-ink); border-radius: 10px; }
+    .skip:focus { transform: translateY(0); }
+    .topbar { padding: 14px clamp(16px, 4vw, 38px); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 12px; position: sticky; top: 0; z-index: 3; background: var(--bg); }
+    .brand { display: flex; gap: 12px; align-items: center; font-size: 20px; font-weight: 700; letter-spacing: .01em; }
+    .brand-mark { width: 42px; height: 42px; display: grid; place-items: center; background: var(--accent); color: var(--accent-ink); border-radius: 12px; font-size: 23px; font-weight: 700; }
+    .brand small { display: block; font-size: 20px; color: var(--muted); font-weight: 400; line-height: 1.2; }
+    .status-pill { border: 1px solid var(--border); border-radius: 99px; display: inline-flex; align-items: center; gap: 9px; padding: 7px 12px; font-size: 20px; background: var(--surface); max-width: 58vw; }
+    .status-icon { font-size: 20px; }
+    main { max-width: 900px; margin: 0 auto; padding: clamp(20px, 5vw, 48px) clamp(16px, 4vw, 36px) 36px; }
+    h1 { font-size: clamp(28px, 5vw, 32px); line-height: 1.25; margin: 0 0 8px; }
+    h2 { font-size: 28px; line-height: 1.3; margin: 0 0 14px; }
+    p { margin: 0 0 18px; }
+    .muted { color: var(--muted); }
+    .eyebrow { color: var(--secondary); font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+    .panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: clamp(18px, 4vw, 28px); box-shadow: var(--shadow); }
+    .stack { display: grid; gap: 18px; }
+    .row { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+    .button { min-height: 56px; padding: 12px 20px; display: inline-flex; align-items: center; justify-content: center; gap: 10px; border-radius: 14px; border: 2px solid var(--border); background: var(--surface); color: var(--text); font-weight: 700; text-align: center; text-decoration: none; cursor: pointer; transition: transform .16s ease, opacity .16s ease; }
+    .button:hover { transform: translateY(-2px); }
+    .button:active { transform: translateY(0); }
+    .button.primary { width: 100%; min-height: 64px; background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+    .button.secondary { border-color: var(--secondary); }
+    .button.danger { border-color: var(--error); color: var(--error); }
+    .button:disabled { opacity: .52; cursor: not-allowed; transform: none; }
+    .button.small { min-height: 46px; padding: 8px 14px; font-size: 20px; }
+    .button-group { display: grid; gap: 12px; }
+    .input-wrap { display: grid; gap: 8px; }
+    label { font-weight: 700; }
+    input, select { width: 100%; min-height: 56px; border: 2px solid var(--border); border-radius: 12px; padding: 10px 14px; color: var(--text); background: var(--bg); }
+    .nav { position: fixed; z-index: 5; bottom: 0; left: 0; right: 0; background: var(--bg); border-top: 2px solid var(--border); padding: 8px max(10px, env(safe-area-inset-left)) calc(8px + env(safe-area-inset-bottom)); display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    .nav button { min-height: 64px; border: 1px solid transparent; background: transparent; border-radius: 12px; display: grid; justify-items: center; align-content: center; gap: 1px; font-size: 20px; font-weight: 700; cursor: pointer; }
+    .nav button[aria-current="page"] { background: var(--surface); border-color: var(--border); color: var(--accent); }
+    .nav-icon { font-size: 23px; line-height: 1.1; }
+    .product-visual { min-height: 150px; display: grid; place-items: center; border: 1px dashed var(--border); border-radius: 16px; background: var(--bg); font-size: 68px; }
+    .product-price { font-size: clamp(34px, 8vw, 48px); line-height: 1.2; font-weight: 700; }
+    .detail-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12px; }
+    .detail { padding: 14px; border-radius: 12px; background: var(--bg); border: 1px solid var(--border); }
+    .detail strong { display: block; }
+    .cart-item { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 12px; border-bottom: 1px solid var(--border); padding: 16px 0; }
+    .cart-item:last-child { border-bottom: 0; }
+    .item-name { font-weight: 700; }
+    .total-box { padding: 18px; border: 2px solid var(--accent); border-radius: 14px; background: var(--bg); }
+    .total-amount { font-size: clamp(34px, 9vw, 54px); font-weight: 700; line-height: 1.2; }
+    .payment-total .total-amount { font-size: clamp(40px, 11vw, 64px); overflow-wrap: anywhere; }
+    .receipt { border: 2px dashed var(--border); padding: 22px; background: var(--bg); border-radius: 10px; }
+    .receipt-line { display: flex; justify-content: space-between; gap: 10px; padding: 8px 0; border-bottom: 1px dotted var(--border); }
+    .receipt-line:last-child { border: 0; }
+    .state-message { padding: 14px 16px; border-radius: 12px; border: 1px solid var(--border); background: var(--bg); }
+    .state-message.error { border-color: var(--error); }
+    .state-message.success { border-color: var(--success); }
+    .inline-note { font-size: 20px; color: var(--muted); }
+    .scan-frame { height: 220px; border: 4px solid var(--secondary); border-radius: 22px; position: relative; display: grid; place-items: center; background: repeating-linear-gradient(0deg, transparent 0 32px, color-mix(in srgb, var(--secondary) 10%, transparent) 32px 34px), var(--bg); overflow: hidden; }
+    .scan-frame::before, .scan-frame::after { content: ""; position: absolute; width: 42px; height: 42px; border-color: var(--accent); border-style: solid; }
+    .scan-frame::before { top: 12px; left: 12px; border-width: 4px 0 0 4px; }
+    .scan-frame::after { bottom: 12px; right: 12px; border-width: 0 4px 4px 0; }
+    .scan-target { font-size: 52px; }
+     .store-summary { padding: 16px; border: 1px solid var(--border); border-radius: 12px; background: var(--bg); }
+    .transaction { min-height: 50px; }
+    .sr-only { position: absolute !important; height: 1px; width: 1px; overflow: hidden; clip: rect(1px,1px,1px,1px); white-space: nowrap; }
+    .notice { margin-top: 12px; }
+    .error-text { color: var(--error); font-weight: 700; }
+    .success-text { color: var(--success); font-weight: 700; }
+    .toggle-line { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 14px 0; border-bottom: 1px solid var(--border); }
+    .toggle-line:last-child { border-bottom: 0; }
+    .toggle-line input { width: 44px; height: 44px; min-height: 44px; flex: 0 0 44px; accent-color: var(--accent); }
+    @media (max-width: 560px) {
+      .topbar { align-items: flex-start; }
+      .brand { font-size: 20px; }
+      .brand-mark { width: 38px; height: 38px; }
+      .status-pill { font-size: 20px; padding: 6px 8px; }
+      .detail-grid { grid-template-columns: 1fr; }
+      .cart-item { grid-template-columns: 1fr; align-items: start; }
+      .cart-item .button { justify-self: start; }
+      .nav button { font-size: 20px; min-height: 60px; }
+    }
+    @media (max-width: 400px) {
+      body { padding-bottom: 190px; }
+      .topbar { flex-wrap: wrap; }
+      .status-pill { max-width: 100%; }
+      .nav { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#main">Saltar al contenido principal</a>
+  <header class="topbar">
+    <div class="brand"><span class="brand-mark" aria-hidden="true">B</span><span>BlindHelPOS<small id="storeSubtitle">Elige tu supermercado</small></span></div>
+  <div class="status-pill" id="posBadge" role="status" aria-live="polite" aria-atomic="true" aria-label="Estado del punto de venta: Sin conexión"><span class="status-icon" id="statusIcon" aria-hidden="true">×</span><span id="statusText">Sin conexión</span></div>
+  </header>
+  <main id="main" tabindex="-1">
+    <div id="view"></div>
+  </main>
+  <nav class="nav" aria-label="Navegación principal">
+    <button type="button" data-dest="scan" aria-current="page"><span class="nav-icon" aria-hidden="true">▦</span><span>Escanear</span></button>
+    <button type="button" data-dest="search"><span class="nav-icon" aria-hidden="true">⌕</span><span>Buscar</span></button>
+    <button type="button" data-dest="cart"><span class="nav-icon" aria-hidden="true">▤</span><span>Carrito</span></button>
+    <button type="button" data-dest="account"><span class="nav-icon" aria-hidden="true">●</span><span>Cuenta</span></button>
+  </nav>
+  <div class="sr-only" id="screenAnnounce" aria-live="polite" aria-atomic="true"></div>
+  <script>
+    (() => {
+      const stores = [
+        {
+          id: "mercado-central", name: "Mercado Central",
+          products: [
+            { id: "manzana", name: "Manzanas rojas", price: 1290, unit: "$1.290 por kg", stock: "Disponible · 8 kg", visual: "◉", category: "Frutas y verduras", barcode: "7801234000012" },
+            { id: "leche", name: "Leche entera 1 litro", price: 1190, unit: "$1.190 por litro", stock: "Disponible · 24 unidades", visual: "▱", category: "Lácteos" },
+            { id: "arroz", name: "Arroz grano largo 1 kg", price: 1590, unit: "$1.590 por kg", stock: "Disponible · 17 unidades", visual: "▤", category: "Despensa", barcode: "7801234000036" },
+            { id: "pan", name: "Pan integral 500 g", price: 2290, unit: "$4.580 por kg", stock: "Disponible · 9 unidades", visual: "◉", category: "Panadería" },
+            { id: "aceite", name: "Aceite de maravilla 1 litro", price: 3490, unit: "$3.490 por litro", stock: "Stock bajo · 3 unidades", visual: "♢", category: "Despensa", barcode: "7801234000050" }
+          ]
+        },
+        {
+          id: "supermercado-andino", name: "Supermercado Andino",
+          products: [
+            { id: "manzana", name: "Manzanas rojas", price: 1390, unit: "$1.390 por kg", stock: "Disponible · 12 kg", visual: "◉", category: "Frutas y verduras" },
+            { id: "leche", name: "Leche entera 1 litro", price: 1090, unit: "$1.090 por litro", stock: "Disponible · 18 unidades", visual: "▱", category: "Lácteos", barcode: "7802234000029" },
+            { id: "arroz", name: "Arroz grano largo 1 kg", price: 1690, unit: "$1.690 por kg", stock: "Disponible · 22 unidades", visual: "▤", category: "Despensa", barcode: "7802234000036" },
+            { id: "pan", name: "Pan integral 500 g", price: 2190, unit: "$4.380 por kg", stock: "Disponible · 6 unidades", visual: "◉", category: "Panadería" },
+            { id: "aceite", name: "Aceite de maravilla 1 litro", price: 3690, unit: "$3.690 por litro", stock: "Disponible · 10 unidades", visual: "♢", category: "Despensa" }
+          ]
+        },
+        {
+          id: "ahorro-familiar", name: "Ahorro Familiar",
+          products: [
+            { id: "manzana", name: "Manzanas rojas", price: 1190, unit: "$1.190 por kg", stock: "Disponible · 5 kg", visual: "◉", category: "Frutas y verduras", barcode: "7803234000012" },
+            { id: "leche", name: "Leche entera 1 litro", price: 1250, unit: "$1.250 por litro", stock: "Disponible · 30 unidades", visual: "▱", category: "Lácteos" },
+            { id: "arroz", name: "Arroz grano largo 1 kg", price: 1490, unit: "$1.490 por kg", stock: "Disponible · 11 unidades", visual: "▤", category: "Despensa" },
+            { id: "pan", name: "Pan integral 500 g", price: 2390, unit: "$4.780 por kg", stock: "Disponible · 14 unidades", visual: "◉", category: "Panadería", barcode: "7803234000043" },
+            { id: "aceite", name: "Aceite de maravilla 1 litro", price: 3290, unit: "$3.290 por litro", stock: "Stock bajo · 2 unidades", visual: "♢", category: "Despensa", barcode: "7803234000050" }
+          ]
+        }
+      ];
+      const state = {
+        view: "connect", page: "scan", pos: "offline", storeId: "", connecting: false, scanning: false,
+        theme: localStorage.getItem("bh-theme") || "dark",
+        voice: localStorage.getItem("bh-voice") !== "false", cart: [], selected: null,
+        lastReceipt: null, scanIndex: 0, searchResults: [], notice: "", payRead: false, paying: false
+      };
+      const view = document.getElementById("view");
+      const screenAnnounce = document.getElementById("screenAnnounce");
+      const statusLabels = {
+        connected: ["Conectado", "●"], sync: ["Sincronizando", "◌"],
+        offline: ["Sin conexión", "×"], paymentError: ["Error de pago", "!"]
+      };
+      const money = n => "$" + Number(n).toLocaleString("es-CL") + " CLP";
+      const total = () => state.cart.reduce((sum, item) => sum + item.price * item.qty, 0);
+      const currentStore = () => stores.find(store => store.id === state.storeId) || null;
+      const currentProducts = () => currentStore()?.products || [];
+      const escapeHtml = value => String(value).replace(/[&<>"']/g, char => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[char]));
+      function setTheme(theme) {
+        state.theme = theme;
+        document.documentElement.dataset.theme = theme;
+        localStorage.setItem("bh-theme", theme);
+        render();
+      }
+      document.documentElement.dataset.theme = state.theme;
+      function beep(kind = "tap") {
+        try {
+          const AudioCtx = window.AudioContext || window.webkitAudioContext;
+          if (!AudioCtx) return;
+          const ctx = new AudioCtx();
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          const presets = { tap: [520, .07], frame: [660, .13], success: [790, .16], error: [210, .22], state: [460, .1] };
+          const [frequency, duration] = presets[kind] || presets.tap;
+          osc.frequency.value = frequency;
+          osc.type = "sine";
+          gain.gain.setValueAtTime(.12, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(.001, ctx.currentTime + duration);
+          osc.connect(gain); gain.connect(ctx.destination);
+          osc.start(); osc.stop(ctx.currentTime + duration);
+          osc.onended = () => ctx.close();
+        } catch (_) { /* La confirmación visual y textual permanece disponible. */ }
+      }
+      function speak(text, onEnd) {
+        if (!state.voice) { if (onEnd) onEnd(false); return false; }
+        if (!("speechSynthesis" in window) || !("SpeechSynthesisUtterance" in window)) {
+          if (onEnd) onEnd(false);
+          showNotice("La lectura por voz no está disponible en este dispositivo. Puedes continuar leyendo la pantalla.", "error");
+          return false;
+        }
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(text);
+        const voices = window.speechSynthesis.getVoices();
+        utterance.voice = voices.find(v => v.lang && v.lang.toLowerCase().startsWith("es-cl")) || voices.find(v => v.lang && v.lang.toLowerCase().startsWith("es-es")) || null;
+        utterance.lang = utterance.voice ? utterance.voice.lang : "es-ES";
+        utterance.rate = .92;
+        utterance.onend = () => { if (onEnd) onEnd(true); };
+        utterance.onerror = () => { if (onEnd) onEnd(false); };
+        window.speechSynthesis.speak(utterance);
+        return true;
+      }
+      function showNotice(text, type = "") {
+        state.notice = text;
+        state.noticeType = type;
+        render();
+      }
+      function noticeMarkup() {
+        if (!state.notice) return "";
+        const icon = state.noticeType === "error" ? "!" : state.noticeType === "success" ? "✓" : "i";
+        return `<p class="state-message notice ${state.noticeType}"><strong aria-hidden="true">${icon}</strong> ${escapeHtml(state.notice)}</p>`;
+      }
+      function updateStatus(newStatus, announce = true) {
+        state.pos = newStatus;
+        const [label, icon] = statusLabels[newStatus];
+        document.getElementById("statusText").textContent = label;
+        document.getElementById("statusIcon").textContent = icon;
+        document.getElementById("posBadge").setAttribute("aria-label", `Estado del punto de venta: ${label}`);
+        beep(newStatus === "paymentError" ? "error" : "state");
+        if (announce) speak(`Estado del punto de venta: ${label}.`);
+        if (state.view === "account") render();
+      }
+      function updateStoreLabel() {
+        const store = currentStore();
+        const subtitle = document.getElementById("storeSubtitle");
+        if (subtitle) subtitle.textContent = store ? `Compra asistida · ${store.name}` : "Elige tu supermercado";
+        document.title = store ? `BlindHelPOS · ${store.name}` : "BlindHelPOS · Compra asistida";
+      }
+      function navigate(destination, preserveNotice = false) {
+        state.page = destination;
+        state.view = destination;
+        state.notice = preserveNotice ? state.notice : "";
+        render();
+        const heading = view.querySelector("h1");
+        screenAnnounce.textContent = heading ? `Pantalla: ${heading.textContent}` : "";
+        requestAnimationFrame(() => document.getElementById("main").focus({ preventScroll: true }));
+      }
+      function getProduct(id) { return currentProducts().find(product => product.id === id); }
+      function renderConnect() {
+        const store = currentStore();
+        const options = stores.map(item => `<option value="${item.id}" ${state.storeId === item.id ? "selected" : ""}>${escapeHtml(item.name)}</option>`).join("");
+        return `<section class="stack" aria-labelledby="title">
+          <div class="eyebrow">Comercio y catálogo</div>
+          <h1 id="title">Elige tu supermercado</h1>
+          <p class="muted">El catálogo y los precios dependerán del supermercado seleccionado.</p>
+          <div class="panel stack">
+            <label class="input-wrap" for="storeSelect"><span><strong>Supermercado</strong></span>
+              <select id="storeSelect" name="store" required ${state.connecting ? "disabled" : ""}>
+                <option value="">Selecciona un supermercado</option>${options}
+              </select>
+            </label>
+            ${store ? `<div class="store-summary"><strong>Catálogo de ${escapeHtml(store.name)}</strong><br><span class="muted">${store.products.length} productos de ejemplo. Los precios se mostrarán en pesos chilenos.</span></div>` : ""}
+            <div class="row"><strong><span aria-hidden="true">${statusLabels[state.pos][1]}</span> ${statusLabels[state.pos][0]}</strong><span class="muted">${store ? `Comercio: ${escapeHtml(store.name)}` : "Comercio sin seleccionar"}</span></div>
+            <div class="state-message" role="status">Conexión simulada. No se envían pagos.</div>
+            <button class="button primary" type="button" data-action="connect-store" ${!store || state.connecting ? "disabled" : ""}>${state.connecting ? "Sincronizando catálogo…" : "Conectar y cargar catálogo"}</button>
+          </div>${noticeMarkup()}</section>`;
+      }
+      function renderAuth() {
+        const store = currentStore();
+        return `<section class="stack" aria-labelledby="title">
+          <div class="eyebrow">Acceso seguro</div>
+          <h1 id="title">Hola, bienvenida o bienvenido</h1>
+          <p class="muted">Elige una forma sencilla de iniciar. No hay CAPTCHA ni límite de tiempo.</p>
+          <div class="panel stack">
+            <div class="state-message success"><strong aria-hidden="true">✓</strong> Catálogo de ${escapeHtml(store?.name || "tu supermercado")} sincronizado. Sesión segura disponible.</div>
+            <button class="button primary" type="button" data-action="authenticate">Usar biometría simulada</button>
+            <button class="button secondary" type="button" data-action="authenticate">Continuar con sesión recordada</button>
+          </div>${noticeMarkup()}</section>`;
+      }
+      function renderHome() {
+        const store = currentStore();
+        return `<section class="stack" aria-labelledby="title">
+          <div class="eyebrow">Compra asistida</div>
+          <h1 id="title">¿Qué te gustaría hacer?</h1>
+          <p class="muted">${escapeHtml(store?.name || "El supermercado")} está conectado. El catálogo y los precios corresponden a este comercio.</p>
+          <div class="panel stack">
+            <button class="button primary" type="button" data-action="go-scan">Escanear producto</button>
+            <button class="button secondary" type="button" data-action="go-search">Buscar por voz</button>
+            <p class="inline-note">También puedes buscar escribiendo desde la sección Buscar.</p>
+          </div>${noticeMarkup()}</section>`;
+      }
+      function renderScan() {
+        return `<section class="stack" aria-labelledby="title">
+          <div class="eyebrow">Reconocimiento visual</div>
+          <h1 id="title">Escanear producto</h1>
+          <p class="muted">Centra el producto o su envase dentro de la guía. La IA visual intenta reconocer la forma, la etiqueta y el texto. Si también detecta un código de barras, lo usa como dato adicional; no necesitas enfocar el código.</p>
+          <div class="scan-frame" role="img" aria-label="Guía visual para centrar el producto completo o su envase"><span class="scan-target" aria-hidden="true">▱</span></div>
+          <div class="panel stack">
+            <p><strong>IA visual simulada:</strong> la demo reconoce un producto ficticio del catálogo. No activa la cámara ni depende de leer un código de barras.</p>
+            <p><strong>Guía sonora:</strong> un tono breve confirma el inicio del análisis.</p>
+            <button class="button primary" type="button" data-action="scan" ${state.scanning ? "disabled" : ""}>${state.scanning ? "Analizando producto…" : "Analizar producto con IA"}</button>
+            <button class="button secondary" type="button" data-action="home">Volver al inicio de compra</button>
+          </div>${noticeMarkup()}</section>`;
+      }
+      function renderProduct() {
+        const p = state.selected || currentProducts()[0];
+        const identification = p?.barcode
+          ? `Producto reconocido visualmente. Código de barras detectado como dato adicional: ${p.barcode}.`
+          : "Producto reconocido visualmente por su forma, envase o etiqueta. No se detectó código de barras.";
+        return `<section class="stack" aria-labelledby="title">
+          <div class="eyebrow">Producto reconocido</div>
+          <h1 id="title">Ficha del producto</h1>
+          <div class="panel stack">
+            <div class="product-visual" role="img" aria-label="Representación visual de ${escapeHtml(p.name)}"><span aria-hidden="true">${p.visual}</span></div>
+            <div><div class="eyebrow">${escapeHtml(p.category)}</div><h2>${escapeHtml(p.name)}</h2><div class="product-price">${money(p.price)}</div></div>
+            <div class="state-message" role="status"><strong>Identificación:</strong> ${escapeHtml(identification)}</div>
+            <div class="detail-grid">
+              <div class="detail"><span class="muted">Precio por unidad</span><strong>${escapeHtml(p.unit)}</strong></div>
+              <div class="detail"><span class="muted">Disponibilidad</span><strong>${escapeHtml(p.stock)}</strong></div>
+            </div>
+            <button class="button primary" type="button" data-action="add-product" data-id="${p.id}">Agregar al carrito</button>
+            <button class="button secondary" type="button" data-action="read-product">Escuchar ficha del producto</button>
+            <button class="button" type="button" data-action="go-scan">Escanear otro producto</button>
+          </div>${noticeMarkup()}</section>`;
+      }
+      function renderAdded() {
+        const product = state.selected || currentProducts()[0];
+        const item = state.cart.find(entry => entry.id === product.id);
+        return `<section class="stack" aria-labelledby="title">
+          <div class="eyebrow">Confirmación de agregado</div>
+          <h1 id="title">Producto agregado al carrito</h1>
+          <div class="panel stack">
+            <div class="state-message success"><strong aria-hidden="true">✓</strong> ${escapeHtml(product.name)} agregado. ${item ? `Cantidad en el carrito: ${item.qty}.` : ""}</div>
+            <div class="total-box" aria-live="polite" aria-atomic="true">
+              <div class="muted">Total acumulado</div>
+              <div class="total-amount">${money(total())}</div>
+            </div>
+            <p>La confirmación incluye voz y una vibración breve cuando el dispositivo la admite.</p>
+            <button class="button primary" type="button" data-action="go-scan">Escanear otro producto</button>
+            <button class="button secondary" type="button" data-action="go-cart">Ir al carrito</button>
+          </div>${noticeMarkup()}</section>`;
+      }
+      function renderCart() {
+        const cartMarkup = state.cart.length ? state.cart.map(item => `<div class="cart-item">
+            <div><div class="item-name">${escapeHtml(item.name)}</div><div class="muted">${item.qty} × ${money(item.price)} · ${money(item.qty * item.price)}</div></div>
+            <button class="button danger small" type="button" data-action="remove" data-id="${item.id}" aria-label="Eliminar ${escapeHtml(item.name)} del carrito">Eliminar</button>
+          </div>`).join("") : `<div class="state-message">Tu carrito está vacío. Puedes escanear o buscar un producto para comenzar.</div>`;
+        return `<section class="stack" aria-labelledby="title">
+          <div class="eyebrow">Revisión de compra</div>
+          <h1 id="title">Carrito de compra</h1>
+          <div class="panel stack"><div>${cartMarkup}</div>
+            <div class="total-box"><div class="muted">Total acumulado</div><div class="total-amount">${money(total())}</div></div>
+            <button class="button primary" type="button" data-action="payment" ${state.cart.length ? "" : "disabled"}>Continuar a confirmar pago</button>
+            <button class="button secondary" type="button" data-action="go-scan">Seguir comprando</button>
+          </div>${noticeMarkup()}</section>`;
+      }
+      function renderPayment() {
+        const store = currentStore();
+        return `<section class="stack" aria-labelledby="title">
+          <div class="eyebrow">Confirmación de pago</div>
+          <h1 id="title">Revisa el importe antes de pagar</h1>
+          <p class="muted">Simulación de pago. No se realizará ningún cargo real.</p>
+          <div class="panel stack">
+            <div class="total-box payment-total" aria-live="polite" aria-atomic="true">
+              <div class="muted">Importe total a confirmar</div>
+              <div class="total-amount">${money(total())}</div>
+              <p class="inline-note">Comercio: ${escapeHtml(store?.name || "Supermercado")}</p>
+              <p class="inline-note">${state.payRead ? "Lectura del importe completada." : "Debes escuchar la lectura del importe antes de habilitar el cobro."}</p>
+            </div>
+            <button class="button secondary" type="button" data-action="read-payment">Leer importe por voz</button>
+            <div class="transaction state-message ${state.pos === "paymentError" ? "error" : ""}" aria-live="polite" aria-atomic="true">${state.pos === "paymentError" ? "Estado de transacción: Error de pago. Puedes reintentar o volver al carrito." : state.paying ? "Estado de transacción: Procesando simulación de pago." : "Estado de transacción: En espera de confirmación."}</div>
+            <button class="button primary" type="button" data-action="pay" ${state.payRead && !state.paying ? "" : "disabled"}>Confirmar pago</button>
+            <button class="button" type="button" data-action="back-cart">Volver al carrito</button>
+          </div>${noticeMarkup()}</section>`;
+      }
+      function renderReceipt() {
+        const store = currentStore();
+        const receipt = state.lastReceipt || { items: state.cart, total: total(), time: new Date() };
+        return `<section class="stack" aria-labelledby="title">
+          <div class="eyebrow">Compra simulada completada</div>
+          <h1 id="title">Comprobante de compra</h1>
+          <div class="panel stack">
+            <div class="state-message success"><strong aria-hidden="true">✓</strong> Pago simulado aprobado. No se realizó un cargo real.</div>
+            <div class="receipt" aria-label="Resumen del comprobante">
+              <h2>${escapeHtml(store?.name || "Supermercado")}</h2><p>Comprobante de compra asistida</p>
+              ${(receipt.items || []).map(item => `<div class="receipt-line"><span>${escapeHtml(item.name)} · ${item.qty}</span><strong>${money(item.price * item.qty)}</strong></div>`).join("")}
+              <div class="receipt-line"><strong>Total</strong><strong>${money(receipt.total || 0)}</strong></div>
+              <p class="inline-note">Fecha: ${new Date(receipt.time).toLocaleString("es-CL")}</p>
+            </div>
+            <button class="button secondary" type="button" data-action="read-receipt">Escuchar resumen del comprobante</button>
+            <button class="button primary" type="button" data-action="new-purchase">Iniciar una nueva compra</button>
+          </div>${noticeMarkup()}</section>`;
+      }
+      function renderSearch() {
+        const store = currentStore();
+        const resultMarkup = state.searchResults.length ? `<div class="stack">${state.searchResults.map(p => `<div class="panel stack">
+          <div class="row"><div><div class="eyebrow">${escapeHtml(p.category)}</div><h2>${escapeHtml(p.name)}</h2></div><strong>${money(p.price)}</strong></div>
+          <p class="muted">${escapeHtml(p.unit)} · ${escapeHtml(p.stock)}</p>
+          <button class="button secondary" type="button" data-action="select-product" data-id="${p.id}">Ver ficha del producto</button>
+        </div>`).join("")}</div>` : `<div class="state-message">Escribe el nombre de un producto y selecciona Buscar productos. También puedes usar la búsqueda por voz si el navegador la admite.</div>`;
+        return `<section class="stack" aria-labelledby="title">
+          <div class="eyebrow">Catálogo de ${escapeHtml(store?.name || "tu supermercado")}</div>
+          <h1 id="title">Buscar productos</h1>
+          <form class="panel stack" id="searchForm">
+            <div class="input-wrap"><label for="query">Nombre del producto</label><input id="query" name="query" type="search" autocomplete="off" placeholder="Por ejemplo, leche o manzanas"></div>
+            <button class="button primary" type="submit">Buscar productos</button>
+            <button class="button secondary" type="button" data-action="voice-search">Buscar por voz</button>
+            <p class="inline-note" id="speechSupport">La búsqueda por texto siempre está disponible.</p>
+          </form>
+          <div class="stack">${resultMarkup}</div>${noticeMarkup()}</section>`;
+      }
+      function renderAccount() {
+        const stateOptions = Object.entries(statusLabels).map(([key, [label]]) => `<option value="${key}" ${state.pos === key ? "selected" : ""}>${label}</option>`).join("");
+        return `<section class="stack" aria-labelledby="title">
+          <div class="eyebrow">Preferencias</div>
+          <h1 id="title">Cuenta y accesibilidad</h1>
+          <div class="panel stack">
+            <h2>Lectura y visualización</h2>
+            <label class="toggle-line" for="voiceToggle"><span><strong>Lectura por voz</strong><br><span class="muted">Anuncios de productos, conexión y compra</span></span><input id="voiceToggle" type="checkbox" ${state.voice ? "checked" : ""} aria-label="Activar lectura por voz"></label>
+            <label class="input-wrap" for="themeSelect"><span><strong>Modo de color</strong></span><select id="themeSelect"><option value="dark" ${state.theme === "dark" ? "selected" : ""}>Oscuro · principal</option><option value="light" ${state.theme === "light" ? "selected" : ""}>Claro · alto contraste</option></select></label>
+          </div>
+          <div class="panel stack">
+            <h2>Simulación del punto de venta</h2>
+            <p class="muted">Cada cambio incluye icono, texto, sonido breve y anuncio de voz cuando está activada.</p>
+            <label class="input-wrap" for="posSelect"><span><strong>Estado actual: ${statusLabels[state.pos][0]}</strong></span><select id="posSelect" aria-label="Seleccionar estado del punto de venta">${stateOptions}</select></label>
+            <div class="state-message ${state.pos === "paymentError" ? "error" : state.pos === "connected" ? "success" : ""}"><span aria-hidden="true">${statusLabels[state.pos][1]}</span> Estado del punto de venta: <strong>${statusLabels[state.pos][0]}</strong></div>
+            <button class="button secondary" type="button" data-action="recover-pos">Restablecer conexión simulada</button>
+          </div>${noticeMarkup()}</section>`;
+      }
+      function render() {
+        const active = document.activeElement;
+        const restoreFocus = view.contains(active);
+        const activeId = restoreFocus ? active.id : "";
+        const activeAction = restoreFocus && active.dataset ? active.dataset.action : "";
+        const activeDataId = restoreFocus && active.dataset ? active.dataset.id : "";
+        const pages = { connect: renderConnect, auth: renderAuth, home: renderHome, scan: renderScan, product: renderProduct, added: renderAdded, cart: renderCart, payment: renderPayment, receipt: renderReceipt, search: renderSearch, account: renderAccount };
+        view.innerHTML = (pages[state.view] || renderScan)();
+        updateStoreLabel();
+        document.querySelectorAll(".nav button").forEach(button => {
+          const dest = button.dataset.dest;
+          button.toggleAttribute("aria-current", dest === state.page);
+          if (dest === state.page) button.setAttribute("aria-current", "page");
+          else button.removeAttribute("aria-current");
+        });
+        const query = document.getElementById("query");
+        if (query && state.searchQuery) query.value = state.searchQuery;
+        const speechSupport = document.getElementById("speechSupport");
+        if (speechSupport) speechSupport.textContent = ("SpeechRecognition" in window || "webkitSpeechRecognition" in window) ? "La búsqueda por voz y por texto están disponibles." : "Este navegador no ofrece reconocimiento de voz. Usa la búsqueda por texto.";
+        if (restoreFocus) {
+          requestAnimationFrame(() => {
+            const next = activeId ? document.getElementById(activeId) : activeAction ? [...view.querySelectorAll("[data-action]")].find(el => el.dataset.action === activeAction && (el.dataset.id || "") === (activeDataId || "")) : null;
+            (next || document.getElementById("main")).focus({ preventScroll: true });
+          });
+        }
+      }
+      function openPayment() {
+        state.view = "payment"; state.page = "cart"; state.payRead = false; state.paying = false; state.notice = "";
+        render(); screenAnnounce.textContent = "Pantalla: Confirmación de pago. Lee el importe antes de confirmar."; requestAnimationFrame(() => document.getElementById("main").focus({ preventScroll: true }));
+      }
+      function beginVoiceSearch() {
+        const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!Recognition) {
+          showNotice("El reconocimiento de voz no está disponible. Escribe el nombre del producto en el campo de búsqueda.", "error");
+          document.getElementById("query")?.focus();
+          return;
+        }
+        const recognition = new Recognition();
+        recognition.lang = "es-CL"; recognition.interimResults = false; recognition.maxAlternatives = 1;
+        showNotice("Escuchando la búsqueda. Di el nombre de un producto.", "");
+        recognition.onresult = event => {
+          const phrase = event.results[0][0].transcript;
+          state.searchQuery = phrase; state.searchResults = filterProducts(phrase);
+          state.notice = `Búsqueda reconocida: ${phrase}.`;
+          render();
+          if (!state.searchResults.length) showNotice(`No encontramos “${phrase}”. Prueba con otro nombre.`, "");
+        };
+        recognition.onerror = () => showNotice("No se pudo reconocer la voz. Puedes buscar escribiendo.", "error");
+        recognition.onend = () => {};
+        try { recognition.start(); } catch (_) { showNotice("No se pudo iniciar el reconocimiento. Usa la búsqueda por texto.", "error"); }
+      }
+      function filterProducts(query) {
+        const normalized = query.trim().toLocaleLowerCase("es");
+        const products = currentProducts();
+        return normalized ? products.filter(p => `${p.name} ${p.category}`.toLocaleLowerCase("es").includes(normalized)) : [...products];
+      }
+      function addToCart(product) {
+        if (!product) return;
+        const existing = state.cart.find(item => item.id === product.id);
+        if (existing) existing.qty += 1;
+        else state.cart.push({ ...product, qty: 1 });
+        const amount = total();
+        state.view = "added"; state.page = "scan"; state.notice = ""; state.noticeType = "success";
+        beep("success");
+        if (navigator.vibrate) navigator.vibrate([80, 40, 80]);
+        render();
+        speak(`${product.name} agregado al carrito. Total acumulado: ${money(amount)}.`);
+      }
+      function handleAction(action, target) {
+        const id = target.dataset.id;
+        if (action === "connect-store") {
+          const store = currentStore();
+          if (!store || state.connecting) return;
+          state.connecting = true; state.notice = ""; updateStatus("sync", false); render();
+          window.setTimeout(() => {
+            state.connecting = false;
+            updateStatus("connected", false);
+            state.view = "auth"; state.page = "scan"; render();
+            speak(`Conectado a ${store.name}. Catálogo y precios sincronizados. Acceso seguro.`);
+          }, 700);
+        } else if (action === "authenticate") {
+          const store = currentStore();
+          state.view = "home"; state.page = "scan"; state.notice = "";
+          render(); screenAnnounce.textContent = `Sesión iniciada en ${store?.name || "el supermercado"}. Pantalla: ¿Qué te gustaría hacer?`; speak(`Sesión iniciada en ${store?.name || "el supermercado"}.`);
+        } else if (action === "home") { state.view = "home"; state.page = "scan"; render(); }
+        else if (action === "go-scan") { state.page = "scan"; state.view = "scan"; state.notice = ""; render(); }
+        else if (action === "go-search") { state.page = "search"; state.view = "search"; state.notice = ""; render(); document.getElementById("query")?.focus(); }
+        else if (action === "scan") {
+          if (state.scanning) return;
+          state.scanning = true; state.notice = ""; beep("frame"); render(); speak("Analizando visualmente el producto.");
+          window.setTimeout(() => {
+            const products = currentProducts();
+            if (!products.length) {
+              state.scanning = false;
+              showNotice("No hay un catálogo cargado. Vuelve a seleccionar un supermercado.", "error");
+              return;
+            }
+            state.selected = products[state.scanIndex % products.length]; state.scanIndex += 1;
+            state.scanning = false; state.view = "product"; state.page = "scan";
+            render();
+            const barcodeSpeech = state.selected.barcode ? ` También detecté el código de barras ${state.selected.barcode} como dato adicional.` : " No detecté código de barras; el producto se identificó visualmente.";
+            speak(`Producto reconocido por análisis visual. ${state.selected.name}. Precio ${money(state.selected.price)}. ${state.selected.unit}. ${state.selected.stock}.${barcodeSpeech}`);
+          }, 650);
+        } else if (action === "add-product") addToCart(getProduct(id));
+        else if (action === "read-product" && state.selected) speak(`${state.selected.name}. ${money(state.selected.price)}. ${state.selected.unit}. ${state.selected.stock}.`);
+        else if (action === "go-cart") { state.page = "cart"; state.view = "cart"; state.notice = ""; render(); }
+        else if (action === "remove") {
+          const item = state.cart.find(entry => entry.id === id);
+          if (item) {
+            state.cart = state.cart.filter(entry => entry.id !== id);
+            const msg = `${item.name} eliminado del carrito. Total actualizado: ${money(total())}.`;
+            state.notice = msg; state.noticeType = "success"; render(); beep("tap"); speak(msg);
+          }
+        } else if (action === "payment") openPayment();
+        else if (action === "back-cart") { state.view = "cart"; state.page = "cart"; state.notice = ""; render(); }
+        else if (action === "read-payment") {
+          if (!state.voice) { state.payRead = false; state.notice = "Activa la lectura por voz en Cuenta para confirmar el importe antes del pago."; state.noticeType = "error"; render(); return; }
+          state.payRead = false; state.notice = ""; render();
+          const started = speak(`Importe total a confirmar: ${money(total())}. ${currentStore()?.name || "Supermercado"}. Simulación de pago, no se realizará un cargo real.`, ok => {
+            state.payRead = ok;
+            state.notice = ok ? "Lectura del importe completada. Ya puedes confirmar el pago." : "No se pudo completar la lectura. Vuelve a intentarlo; el pago sigue bloqueado.";
+            state.noticeType = ok ? "success" : "error"; render();
+          });
+          if (!started) { state.payRead = false; render(); }
+        } else if (action === "pay") {
+          if (!state.payRead || state.paying) return;
+          if (state.pos === "paymentError") { showNotice("El punto de venta indica Error de pago. Restablece la conexión en Cuenta y vuelve a intentar.", "error"); beep("error"); speak("Error de pago. No se realizó ningún cargo. Puedes restablecer la conexión en Cuenta."); return; }
+          state.paying = true; state.notice = ""; render(); speak("Procesando pago simulado.");
+          window.setTimeout(() => {
+            if (state.pos === "offline" || state.pos === "sync") {
+              state.paying = false; updateStatus("paymentError"); state.view = "payment"; state.page = "cart";
+              state.notice = "Error de pago: el punto de venta no está conectado. No se realizó ningún cargo. Restablece la conexión e inténtalo de nuevo.";
+              state.noticeType = "error"; render(); speak(state.notice);
+              return;
+            }
+            state.lastReceipt = { items: state.cart.map(item => ({ ...item })), total: total(), time: new Date() };
+            state.cart = []; state.paying = false; state.view = "receipt"; state.page = "cart"; state.notice = "";
+            updateStatus("connected", false); render(); beep("success");
+            const receiptTotal = state.lastReceipt.total;
+            speak(`Pago simulado aprobado. Comprobante de ${currentStore()?.name || "Supermercado"}. Total ${money(receiptTotal)}. La compra está completa.`);
+          }, 950);
+        } else if (action === "read-receipt") {
+          const r = state.lastReceipt;
+          if (r) speak(`Resumen del comprobante de ${currentStore()?.name || "Supermercado"}. ${(r.items || []).map(i => `${i.name}, cantidad ${i.qty}, ${money(i.price * i.qty)}`).join(". ")}. Total: ${money(r.total)}.`);
+        } else if (action === "new-purchase") {
+          state.view = "home"; state.page = "scan"; state.notice = ""; state.lastReceipt = null;
+          updateStatus("connected", false); render(); speak(`Nueva compra lista en ${currentStore()?.name || "el supermercado"}.`);
+        } else if (action === "select-product") {
+          state.selected = getProduct(id); state.view = "product"; state.page = "search"; state.notice = "";
+          render(); speak(`Producto encontrado. ${state.selected.name}. ${money(state.selected.price)}. ${state.selected.unit}.`);
+        } else if (action === "voice-search") beginVoiceSearch();
+        else if (action === "recover-pos") {
+          updateStatus("connected"); state.notice = "Conexión simulada restablecida. Puedes volver al pago."; state.noticeType = "success"; render();
+        }
+      }
+      document.querySelector(".nav").addEventListener("click", event => {
+        const button = event.target.closest("button[data-dest]");
+        if (!button) return;
+        beep("tap");
+        const dest = button.dataset.dest;
+        if (dest === "scan") {
+          state.view = state.view === "connect" || state.view === "auth" ? state.view : (state.view === "home" ? "home" : "scan");
+          state.page = "scan"; state.notice = "";
+          render();
+        } else navigate(dest);
+      });
+      view.addEventListener("click", event => {
+        const button = event.target.closest("button[data-action]");
+        if (!button) return;
+        beep("tap");
+        handleAction(button.dataset.action, button);
+      });
+      view.addEventListener("submit", event => {
+        if (event.target.id !== "searchForm") return;
+        event.preventDefault();
+        const query = new FormData(event.target).get("query") || "";
+        state.searchQuery = String(query);
+        state.searchResults = filterProducts(state.searchQuery);
+        state.notice = state.searchResults.length ? `${state.searchResults.length} producto(s) encontrado(s).` : "No encontramos ese producto. Comprueba el nombre o prueba otra búsqueda.";
+        state.noticeType = state.searchResults.length ? "success" : "";
+        render();
+        screenAnnounce.textContent = state.notice;
+      });
+      view.addEventListener("change", event => {
+        if (event.target.id === "storeSelect") {
+          state.storeId = event.target.value;
+          state.connecting = false;
+          state.notice = state.storeId ? `Catálogo de ${currentStore().name} listo para sincronizar.` : "";
+          state.noticeType = state.storeId ? "success" : "";
+          updateStatus(state.storeId ? "sync" : "offline");
+          render();
+        } else if (event.target.id === "voiceToggle") {
+          state.voice = event.target.checked; localStorage.setItem("bh-voice", String(state.voice));
+          if (!state.voice && "speechSynthesis" in window) window.speechSynthesis.cancel();
+          showNotice(state.voice ? "Lectura por voz activada." : "Lectura por voz desactivada.", "success");
+        } else if (event.target.id === "themeSelect") setTheme(event.target.value);
+        else if (event.target.id === "posSelect") {
+          updateStatus(event.target.value);
+          state.notice = `Estado del punto de venta cambiado a ${statusLabels[event.target.value][0]}.`; state.noticeType = event.target.value === "paymentError" ? "error" : "success"; render();
+        }
+      });
+      render();
+    })();
+  </script>
+</body>
+</html>
